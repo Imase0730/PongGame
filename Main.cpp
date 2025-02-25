@@ -9,6 +9,13 @@ int WINAPI WinMain(
 	_In_ int nShowCmd
 )
 {
+	int x;
+	int y;
+	int key;
+
+	x = 0;
+	y = 0;
+
 	// 画面モードのセット
 	SetGraphMode(1280, 720, 32);
 
@@ -31,10 +38,35 @@ int WINAPI WinMain(
 	{
 		// ゲームの更新処理
 
+		key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+
+		if (key & PAD_INPUT_LEFT)
+		{
+			x -= 10;
+		}
+
+		if (key & PAD_INPUT_RIGHT)
+		{
+			x += 10;
+		}
+
+		if (key & PAD_INPUT_UP)
+		{
+			y -= 10;
+		}
+
+		if (key & PAD_INPUT_DOWN)
+		{
+			y += 10;
+		}
+
 		// 画面を初期化する
 		ClearDrawScreen();
 
 		// ゲームの描画処理
+
+		// 四角形の描画
+		DrawBox(x, y, x + 100, y + 200, GetColor(255, 255, 255), TRUE);
 
 		// 裏画面の内容を表画面に反映させる
 		ScreenFlip();
