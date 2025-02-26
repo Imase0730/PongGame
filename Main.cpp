@@ -9,15 +9,31 @@ int WINAPI WinMain(
 	_In_ int nShowCmd
 )
 {
-	int x;
-	int y;
+	// ----- 定数宣言 ----- //
+
+	// 画面のサイズ
+	const int SCREEN_WIDTH = 1280;
+	const int SCREEN_HEIGHT = 720;
+
+	// パドルの大きさ
+	const int PADDLE_WIDTH = 32;
+	const int PADDLE_HEIGHT = 64;
+
+	// パドルの移動速度
+	const int PADDLE_SPEED = 8;
+
+	// ----- 変数宣言 ----- //
+	int paddleX;
+	int paddleY;
 	int key;
 
-	x = 0;
-	y = 0;
+	// ----- 変数の初期化 ----- //
+	paddleX = 0;
+	paddleY = 0;
+	key = 0;
 
 	// 画面モードのセット
-	SetGraphMode(1280, 720, 32);
+	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
 
 	// タイトルを変更
 	SetMainWindowText(L"Pong Game");
@@ -38,26 +54,29 @@ int WINAPI WinMain(
 	{
 		// ゲームの更新処理
 
+		// キー入力の取得
 		key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 
-		if (key & PAD_INPUT_LEFT)
-		{
-			x -= 10;
-		}
-
-		if (key & PAD_INPUT_RIGHT)
-		{
-			x += 10;
-		}
-
+		// 上キーが押された
 		if (key & PAD_INPUT_UP)
 		{
-			y -= 10;
+			paddleY -= PADDLE_SPEED;
 		}
 
+		// 下キーが押された
 		if (key & PAD_INPUT_DOWN)
 		{
-			y += 10;
+			paddleY += PADDLE_SPEED;
+		}
+		
+		// 画面外へパドルが移動しないように画面外なら位置を補正する
+		if (paddleY < 0)
+		{
+			paddleY = 0;
+		}
+		if (paddleY > SCREEN_HEIGHT - PADDLE_HEIGHT)
+		{
+			paddleY = SCREEN_HEIGHT - PADDLE_HEIGHT;
 		}
 
 		// 画面を初期化する
@@ -66,7 +85,7 @@ int WINAPI WinMain(
 		// ゲームの描画処理
 
 		// 四角形の描画
-		DrawBox(x, y, x + 100, y + 200, GetColor(255, 255, 255), TRUE);
+		DrawBox(paddleX, paddleY, paddleX + PADDLE_WIDTH, paddleY + PADDLE_HEIGHT, GetColor(255, 255, 255), TRUE);
 
 		// 裏画面の内容を表画面に反映させる
 		ScreenFlip();
