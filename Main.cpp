@@ -35,6 +35,8 @@ int WINAPI WinMain(
 	int paddleY;
 	int ballX;
 	int ballY;
+	int ballVelocityX;
+	int ballVelocityY;
 
 	// ----- 変数の初期化 ----- //
 	key = 0;
@@ -42,6 +44,8 @@ int WINAPI WinMain(
 	paddleY = PADDLE_Y;
 	ballX = 0;
 	ballY = 0;
+	ballVelocityX = 5;
+	ballVelocityY = 5;
 
 	// 画面モードのセット
 	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
@@ -88,6 +92,38 @@ int WINAPI WinMain(
 		if (paddleY > SCREEN_HEIGHT - PADDLE_HEIGHT)
 		{
 			paddleY = SCREEN_HEIGHT - PADDLE_HEIGHT;
+		}
+
+		// ボールの移動
+		ballX += ballVelocityX;
+		ballY += ballVelocityY;
+		
+		// 右側の壁に当たった時
+		if (ballX >= SCREEN_WIDTH - BALL_SIZE)
+		{
+			// 跳ね返る
+			ballVelocityX = -ballVelocityX;
+		}
+
+		// 左側の壁に当たった時
+		if (ballX <= 0)
+		{
+			// 跳ね返る
+			ballVelocityX = -ballVelocityX;
+		}
+
+		// 上側の壁に当たった時
+		if (ballY <= 0)
+		{
+			// 跳ね返る
+			ballVelocityY = -ballVelocityY;
+		}
+
+		// 下側の壁に当たった時
+		if (ballY >= SCREEN_HEIGHT - BALL_SIZE)
+		{
+			// 跳ね返る
+			ballVelocityY = -ballVelocityY;
 		}
 
 		// 画面を初期化する
