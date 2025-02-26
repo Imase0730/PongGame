@@ -126,6 +126,14 @@ int WINAPI WinMain(
 			ballVelocityY = -ballVelocityY;
 		}
 
+		// パドルとボールの衝突判定
+		if ( (paddleX < ballX + BALL_SIZE && ballX < paddleX + BALL_SIZE)
+		  && (paddleY < ballY + BALL_SIZE && ballY < paddleY + BALL_SIZE)
+		   )
+		{
+			ballVelocityX = -ballVelocityX;
+		}
+
 		// 画面を初期化する
 		ClearDrawScreen();
 
