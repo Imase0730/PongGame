@@ -15,6 +15,9 @@ int WINAPI WinMain(
 	const int SCREEN_WIDTH = 1280;
 	const int SCREEN_HEIGHT = 720;
 
+	// フォントのサイズ
+	const int FONT_SIZE = 50;
+
 	// パドルの大きさ
 	const int PADDLE_WIDTH = 32;
 	const int PADDLE_HEIGHT = 64;
@@ -37,6 +40,7 @@ int WINAPI WinMain(
 	int ballY;
 	int ballVelocityX;
 	int ballVelocityY;
+	int score;
 
 	// ----- 変数の初期化 ----- //
 	key = 0;
@@ -46,6 +50,7 @@ int WINAPI WinMain(
 	ballY = 0;
 	ballVelocityX = 5;
 	ballVelocityY = 5;
+	score = 0;
 
 	// 画面モードのセット
 	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
@@ -63,6 +68,9 @@ int WINAPI WinMain(
 
 	// 描画先画面を裏画面にセット
 	SetDrawScreen(DX_SCREEN_BACK);
+
+	// フォントのサイズの設定
+	SetFontSize(FONT_SIZE);
 
 	// ループ
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
@@ -127,11 +135,14 @@ int WINAPI WinMain(
 		}
 
 		// パドルとボールの衝突判定
-		if ( (paddleX < ballX + BALL_SIZE && ballX < paddleX + BALL_SIZE)
+		if ( (ballVelocityX < 0)	// ボールが左方向へ移動している
+		  && (paddleX < ballX + BALL_SIZE && ballX < paddleX + BALL_SIZE)
 		  && (paddleY < ballY + BALL_SIZE && ballY < paddleY + BALL_SIZE)
 		   )
 		{
 			ballVelocityX = -ballVelocityX;
+			// スコアを加算
+			score++;
 		}
 
 		// 画面を初期化する
@@ -144,6 +155,9 @@ int WINAPI WinMain(
 
 		// ボールの描画
 		DrawBox(ballX, ballY, ballX + BALL_SIZE, ballY + BALL_SIZE, GetColor(255, 255, 255), TRUE);
+
+		// スコアの表示
+		DrawFormatString(0, 0, GetColor(255, 255, 255), L"SCORE:%d", score);
 
 		// 裏画面の内容を表画面に反映させる
 		ScreenFlip();
