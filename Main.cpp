@@ -11,6 +11,20 @@ int WINAPI WinMain(
 {
 	// ----- 定数宣言 ----- //
 
+	// シーンの列挙子
+	enum class Scene
+	{
+		TITLE,
+		GAME,
+		GAMEOVER,
+	};
+
+	// タイトルの文字列
+	const wchar_t TITLE[] = L"Pong Game";
+
+	// ゲームオーバーの文字列
+	const wchar_t GAMEOVER[] = L"Game Over";
+
 	// 画面のサイズ
 	const int SCREEN_WIDTH = 1280;
 	const int SCREEN_HEIGHT = 720;
@@ -42,6 +56,7 @@ int WINAPI WinMain(
 
 	// ----- 変数宣言 ----- //
 	int key;
+	int oldKey;
 	int paddleX;
 	int paddleY;
 	int ballX;
@@ -49,9 +64,11 @@ int WINAPI WinMain(
 	int ballVelocityX;
 	int ballVelocityY;
 	int score;
+	Scene scene;
 
 	// ----- 変数の初期化 ----- //
 	key = 0;
+	oldKey = 0;
 	paddleX = PADDLE_X;
 	paddleY = PADDLE_Y;
 	ballX = BALL_X;
@@ -59,6 +76,7 @@ int WINAPI WinMain(
 	ballVelocityX = BALL_SPEED_X;
 	ballVelocityY = BALL_SPEED_Y;
 	score = 0;
+	scene = Scene::TITLE;
 
 	// 画面モードのセット
 	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
@@ -83,88 +101,155 @@ int WINAPI WinMain(
 	// ループ
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
-		// ゲームの更新処理
+		// ----- ゲームの更新処理 ----- //
 
 		// キー入力の取得
+		oldKey = key;
 		key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 
-		// 上キーが押された
-		if (key & PAD_INPUT_UP)
+		// タイトルなら
+		if (scene == Scene::TITLE)
 		{
-			paddleY -= PADDLE_SPEED;
+			// スペースキーでゲーム開始
+			if ((~oldKey & key) & PAD_INPUT_10)
+			{
+				// ゲーム中へ
+				scene = Scene::GAME;
+				// ゲームで使用する変数の初期化
+				paddleX = PADDLE_X;
+				paddleY = PADDLE_Y;
+				ballX = BALL_X;
+				ballY = BALL_Y;
+				ballVelocityX = BALL_SPEED_X;
+				ballVelocityY = BALL_SPEED_Y;
+				score = 0;
+			}
 		}
 
-		// 下キーが押された
-		if (key & PAD_INPUT_DOWN)
+		// ゲーム中なら
+		if (scene == Scene::GAME)
 		{
-			paddleY += PADDLE_SPEED;
-		}
-		
-		// 画面外へパドルが移動しないように画面外なら位置を補正する
-		if (paddleY < 0)
-		{
-			paddleY = 0;
-		}
-		if (paddleY > SCREEN_HEIGHT - PADDLE_HEIGHT)
-		{
-			paddleY = SCREEN_HEIGHT - PADDLE_HEIGHT;
+			// 上キーが押された
+			if (key & PAD_INPUT_UP)
+			{
+				paddleY -= PADDLE_SPEED;
+			}
+
+			// 下キーが押された
+			if (key & PAD_INPUT_DOWN)
+			{
+				paddleY += PADDLE_SPEED;
+			}
+
+			// 画面外へパドルが移動しないように画面外なら位置を補正する
+			if (paddleY < 0)
+			{
+				paddleY = 0;
+			}
+			if (paddleY > SCREEN_HEIGHT - PADDLE_HEIGHT)
+			{
+				paddleY = SCREEN_HEIGHT - PADDLE_HEIGHT;
+			}
+
+			// ボールの移動
+			ballX += ballVelocityX;
+			ballY += ballVelocityY;
+
+			// 右側の壁に当たった時
+			if (ballX >= SCREEN_WIDTH - BALL_SIZE)
+			{
+				// 跳ね返る
+				ballVelocityX = -ballVelocityX;
+			}
+
+			// 左側の壁に当たった時
+			if (ballX <= 0)
+			{
+				// ゲームオーバーへ
+				scene = Scene::GAMEOVER;
+			}
+
+			// 上側の壁に当たった時
+			if (ballY <= 0)
+			{
+				// 跳ね返る
+				ballVelocityY = -ballVelocityY;
+			}
+
+			// 下側の壁に当たった時
+			if (ballY >= SCREEN_HEIGHT - BALL_SIZE)
+			{
+				// 跳ね返る
+				ballVelocityY = -ballVelocityY;
+			}
+
+			// パドルとボールの衝突判定
+			if ((ballVelocityX < 0)	// ボールが左方向へ移動している
+				&& (paddleX < ballX + BALL_SIZE && ballX < paddleX + BALL_SIZE)
+				&& (paddleY < ballY + BALL_SIZE && ballY < paddleY + BALL_SIZE)
+				)
+			{
+				ballVelocityX = -ballVelocityX;
+				// スコアを加算
+				score++;
+			}
 		}
 
-		// ボールの移動
-		ballX += ballVelocityX;
-		ballY += ballVelocityY;
-		
-		// 右側の壁に当たった時
-		if (ballX >= SCREEN_WIDTH - BALL_SIZE)
+		// ゲームオーバーなら
+		if (scene == Scene::GAMEOVER)
 		{
-			// 跳ね返る
-			ballVelocityX = -ballVelocityX;
-		}
-
-		// 左側の壁に当たった時
-		if (ballX <= 0)
-		{
-			// ゲームオーバー
-		}
-
-		// 上側の壁に当たった時
-		if (ballY <= 0)
-		{
-			// 跳ね返る
-			ballVelocityY = -ballVelocityY;
-		}
-
-		// 下側の壁に当たった時
-		if (ballY >= SCREEN_HEIGHT - BALL_SIZE)
-		{
-			// 跳ね返る
-			ballVelocityY = -ballVelocityY;
-		}
-
-		// パドルとボールの衝突判定
-		if ( (ballVelocityX < 0)	// ボールが左方向へ移動している
-		  && (paddleX < ballX + BALL_SIZE && ballX < paddleX + BALL_SIZE)
-		  && (paddleY < ballY + BALL_SIZE && ballY < paddleY + BALL_SIZE)
-		   )
-		{
-			ballVelocityX = -ballVelocityX;
-			// スコアを加算
-			score++;
+			// スペースキーでタイトルへ
+			if ((~oldKey & key) & PAD_INPUT_10)
+			{
+				// タイトルへ
+				scene = Scene::TITLE;
+			}
 		}
 
 		// 画面を初期化する
 		ClearDrawScreen();
 
-		// ゲームの描画処理
+		// ----- ゲームの描画処理 ----- //
 
-		// パドルの描画
-		DrawBox(paddleX, paddleY, paddleX + PADDLE_WIDTH, paddleY + PADDLE_HEIGHT, GetColor(255, 255, 255), TRUE);
+		// タイトルなら
+		if (scene == Scene::TITLE)
+		{
+			// ゲームタイトルの表示
+			DrawFormatString(SCREEN_WIDTH / 2 - GetDrawStringWidth(TITLE, wcslen(TITLE)) / 2
+				, SCREEN_HEIGHT / 2 - FONT_SIZE / 2
+				, GetColor(255, 255, 255), TITLE, score);
+		}
 
-		// ボールの描画
-		DrawBox(ballX, ballY, ballX + BALL_SIZE, ballY + BALL_SIZE, GetColor(255, 255, 255), TRUE);
+		// ゲーム中なら
+		if (scene == Scene::GAME)
+		{
+			// パドルの描画
+			DrawBox(paddleX, paddleY, paddleX + PADDLE_WIDTH, paddleY + PADDLE_HEIGHT, GetColor(255, 255, 255), TRUE);
 
-		// スコアの表示
-		DrawFormatString(0, 0, GetColor(255, 255, 255), L"SCORE:%d", score);
+			// ボールの描画
+			DrawBox(ballX, ballY, ballX + BALL_SIZE, ballY + BALL_SIZE, GetColor(255, 255, 255), TRUE);
+
+			// スコアの表示
+			DrawFormatString(0, 0, GetColor(255, 255, 255), L"SCORE:%d", score);
+		}
+
+		// ゲームオーバーなら
+		if (scene == Scene::GAMEOVER)
+		{
+			// パドルの描画
+			DrawBox(paddleX, paddleY, paddleX + PADDLE_WIDTH, paddleY + PADDLE_HEIGHT, GetColor(255, 255, 255), TRUE);
+
+			// ボールの描画
+			DrawBox(ballX, ballY, ballX + BALL_SIZE, ballY + BALL_SIZE, GetColor(255, 255, 255), TRUE);
+
+			// スコアの表示
+			DrawFormatString(0, 0, GetColor(255, 255, 255), L"SCORE:%d", score);
+
+			// GAMEOVERの表示
+			DrawFormatString(SCREEN_WIDTH / 2 - GetDrawStringWidth(GAMEOVER, wcslen(GAMEOVER)) / 2
+				, SCREEN_HEIGHT / 2 - FONT_SIZE / 2
+				, GetColor(255, 255, 255), GAMEOVER, score);
+		}
 
 		// 裏画面の内容を表画面に反映させる
 		ScreenFlip();
