@@ -22,14 +22,18 @@ int WINAPI WinMain(
 	// パドルの移動速度
 	const int PADDLE_SPEED = 8;
 
+	// パドルの初期位置
+	const int PADDLE_X = 100;
+	const int PADDLE_Y = SCREEN_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+
 	// ----- 変数宣言 ----- //
 	int paddleX;
 	int paddleY;
 	int key;
 
 	// ----- 変数の初期化 ----- //
-	paddleX = 0;
-	paddleY = 0;
+	paddleX = PADDLE_X;
+	paddleY = PADDLE_Y;
 	key = 0;
 
 	// 画面モードのセット
