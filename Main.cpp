@@ -26,15 +26,22 @@ int WINAPI WinMain(
 	const int PADDLE_X = 100;
 	const int PADDLE_Y = SCREEN_HEIGHT / 2 - PADDLE_HEIGHT / 2;
 
+	// ボールの大きさ
+	const int BALL_SIZE = 32;
+
 	// ----- 変数宣言 ----- //
+	int key;
 	int paddleX;
 	int paddleY;
-	int key;
+	int ballX;
+	int ballY;
 
 	// ----- 変数の初期化 ----- //
+	key = 0;
 	paddleX = PADDLE_X;
 	paddleY = PADDLE_Y;
-	key = 0;
+	ballX = 0;
+	ballY = 0;
 
 	// 画面モードのセット
 	SetGraphMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32);
@@ -88,8 +95,11 @@ int WINAPI WinMain(
 
 		// ゲームの描画処理
 
-		// 四角形の描画
+		// パドルの描画
 		DrawBox(paddleX, paddleY, paddleX + PADDLE_WIDTH, paddleY + PADDLE_HEIGHT, GetColor(255, 255, 255), TRUE);
+
+		// ボールの描画
+		DrawBox(ballX, ballY, ballX + BALL_SIZE, ballY + BALL_SIZE, GetColor(255, 255, 255), TRUE);
 
 		// 裏画面の内容を表画面に反映させる
 		ScreenFlip();
