@@ -32,6 +32,14 @@ int WINAPI WinMain(
 	// ボールの大きさ
 	const int BALL_SIZE = 32;
 
+	// ボールの初期位置
+	const int BALL_X = SCREEN_WIDTH - BALL_SIZE;
+	const int BALL_Y = SCREEN_HEIGHT / 2 - BALL_SIZE / 2;
+
+	// ボールの初期速度
+	const int BALL_SPEED_X = -5;
+	const int BALL_SPEED_Y = 5;
+
 	// ----- 変数宣言 ----- //
 	int key;
 	int paddleX;
@@ -46,10 +54,10 @@ int WINAPI WinMain(
 	key = 0;
 	paddleX = PADDLE_X;
 	paddleY = PADDLE_Y;
-	ballX = 0;
-	ballY = 0;
-	ballVelocityX = 5;
-	ballVelocityY = 5;
+	ballX = BALL_X;
+	ballY = BALL_Y;
+	ballVelocityX = BALL_SPEED_X;
+	ballVelocityY = BALL_SPEED_Y;
 	score = 0;
 
 	// 画面モードのセット
@@ -116,8 +124,7 @@ int WINAPI WinMain(
 		// 左側の壁に当たった時
 		if (ballX <= 0)
 		{
-			// 跳ね返る
-			ballVelocityX = -ballVelocityX;
+			// ゲームオーバー
 		}
 
 		// 上側の壁に当たった時
